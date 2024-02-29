@@ -1,13 +1,17 @@
-const users = [];
 const bcrypt = require("bcrypt");
+const { User } = require("../../models");
 
-const create = async (req, res) => {
+const createUser = async (req, res) => {
+  console.log("je rentre dans createUser");
   //CHANGE LOGIC FOR BDD IMPLEMENTATION
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const user = { name: req.body.name, password: hashedPassword };
-    users.push(user);
-    res.status(201).send(user);
+    // const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const user = req.body;
+    console.log(user);
+
+    const createdUser = await User.create(user);
+    console.log("created user:", createdUser);
+    res.status(201).send(createdUser);
   } catch {
     res.status(500).send();
   }
@@ -35,7 +39,7 @@ const hello = async (req, res) => {
 };
 
 module.exports = {
-  create,
+  createUser,
   login,
   hello,
 };

@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { User } = require("../../models");
+const { User, Token } = require("../../models");
+const { where } = require("sequelize");
 
 const createUser = async (req, res) => {
   try {
@@ -32,6 +33,7 @@ const createUser = async (req, res) => {
 };
 
 const login = async (req, res) => {
+  console.log(req.body);
   const user = await User.findOne({ where: { email: req.body.email } });
   if (user == null) {
     return res.status(400).send("Cannot find user");
@@ -46,7 +48,24 @@ const login = async (req, res) => {
         process.env.JWT_SECRET
       );
 
-      console.log("token :", token);
+      const existingUserSession = await Token.findOne({
+        where: { userId: user.id },
+      });
+
+      // if already a session for said user, updates the token to replicate in frontend
+      if (existingUserSession) {
+        existingUserSession.authToken = token;
+        await existingUserSession.save();
+      } else {
+        const userSession = {
+          userId: user.id,
+          authToken: token,
+        };
+
+        await Token.create(userSession);
+        res.status(200).send({ authData: user, jwt: token });
+      }
+
       res.status(200).send({ authData: user, jwt: token });
     } else {
       res.status(203).send("Not Allowed");

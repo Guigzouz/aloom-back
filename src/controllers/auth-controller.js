@@ -44,8 +44,16 @@ const login = async (req, res) => {
       console.log("success");
 
       const token = jwt.sign(
-        { _id: user.id, email: user.email },
-        process.env.JWT_SECRET
+        {
+          _id: user.id,
+          email: user.email,
+          firstname: user.firstName,
+          lastName: user.lastName,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "24h",
+        }
       );
 
       const existingUserSession = await Token.findOne({
@@ -53,6 +61,7 @@ const login = async (req, res) => {
       });
 
       // if already a session for said user, updates the token to replicate in frontend
+      // ISSUING A JWT TO DATABASE IS NOT USED FOR SESSIONS BUT RATHER EMAIL VERIFICATIONS DO NOT USE TO CHECK AUTH
       if (existingUserSession) {
         existingUserSession.authToken = token;
         await existingUserSession.save();
@@ -63,10 +72,10 @@ const login = async (req, res) => {
         };
 
         await Token.create(userSession);
-        res.status(200).send({ authData: user, jwt: token });
+        res.status(200).send({ jwt: token });
       }
 
-      res.status(200).send({ authData: user, jwt: token });
+      res.status(200).send({ jwt: token });
     } else {
       res.status(203).send("Not Allowed");
     }

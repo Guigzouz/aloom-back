@@ -16,6 +16,11 @@ module.exports = (sequelize, DataTypes) => {
       constraints: true,
       as: "tokens",
     });
+    User.belongsToMany(models.Group, {
+      through: models.UserGroup,
+      foreignKey: "userId",
+      otherKey: "groupId",
+    });
   };
 
   return User;

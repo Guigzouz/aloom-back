@@ -18,8 +18,7 @@ const io = new Server(httpServer, {
 app.use(express.json());
 app.use(cors());
 
-// Assuming authRoutes is defined somewhere else
-app.use("/auth", router);
+app.use("/", router);
 
 app.get("/", (req, res) => res.send("Hello World"));
 

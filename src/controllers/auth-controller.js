@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User, Token } = require("../../models");
-const { where } = require("sequelize");
 
 const createUser = async (req, res) => {
   try {
@@ -27,8 +26,11 @@ const createUser = async (req, res) => {
 
     console.log("created user:", createdUser);
     res.status(201).send(createdUser);
-  } catch {
-    res.status(500).send();
+  } catch (error) {
+    console.error(error); // Log the error for debugging purposes
+    res
+      .status(500)
+      .send({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -79,8 +81,11 @@ const login = async (req, res) => {
     } else {
       res.status(203).send("Not Allowed");
     }
-  } catch {
-    res.status(500).send("Internal server error");
+  } catch (error) {
+    console.error(error); // Log the error for debugging purposes
+    res
+      .status(500)
+      .send({ message: "Internal server error", error: error.message });
   }
 };
 

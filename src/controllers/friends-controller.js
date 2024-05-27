@@ -188,7 +188,7 @@ const getFriendsList = async (req, res) => {
   try {
     const friends = await Friend.findAll({
       where: {
-        friendId: req.body.userId,
+        friendId: req.params.userId,
         isRequestPending: false,
         isBlocked: false,
         isActive: true,

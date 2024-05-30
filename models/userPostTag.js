@@ -2,15 +2,15 @@
 // PIVOT TABLE
 
 module.exports = (sequelize, DataTypes) => {
-  const UserGroup = sequelize.define("UserGroup", {
-    userId: {
+  const UserPostTag = sequelize.define("UserPostTag", {
+    tagId: {
       type: DataTypes.INTEGER,
-      references: { model: "Users", key: "id" },
+      references: { model: "Tags", key: "id" },
     },
-    groupId: {
-      type: DataTypes.STRING,
+    postId: {
+      type: DataTypes.INTEGER,
       references: {
-        model: "Groups",
+        model: "UserPosts",
         key: "id",
       },
     },
@@ -20,5 +20,5 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
-  return UserGroup;
+  return UserPostTag;
 };

@@ -1,5 +1,5 @@
 const { Friend } = require("../../models");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 
 // FRIEND REQUESTS ENDPOINTS
 
@@ -186,24 +186,25 @@ const declineFriendRequest = async (req, res) => {
 
 const getFriendsList = async (req, res) => {
   try {
+    const userId = req.params.userId;
+
     const friends = await Friend.findAll({
       where: {
-        friendId: req.body.userId,
+        [Sequelize.Op.or]: [{ friendId: userId }, { userId: userId }],
         isRequestPending: false,
         isBlocked: false,
         isActive: true,
       },
     });
 
-    if (friends) {
-      res.status(201).json({
-        message: "friend(s) retrieved",
+    if (friends.length > 0) {
+      res.status(200).json({
+        message: "Friend(s) retrieved",
         friendsList: friends,
       });
-      return;
+    } else {
+      res.status(404).send("No friends found");
     }
-
-    res.status(400).send("no friends ? too bad for you :(");
   } catch (error) {
     console.error(error); // Log the error for debugging purposes
     res
@@ -216,7 +217,6 @@ const getFriendsList = async (req, res) => {
 // SOIT USER DANS UNE RELATION EN FONCTION DE QUI A AJOUTE QUI
 
 const removeFriend = async (req, res) => {
-  console.log(req.body);
   try {
     const currentFriend = await Friend.findOne({
       where: {
@@ -236,7 +236,6 @@ const removeFriend = async (req, res) => {
       },
     });
 
-    console.log(currentFriend);
     if (currentFriend) {
       const removedFriend = await Friend.update(
         {

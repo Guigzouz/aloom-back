@@ -28,17 +28,21 @@ httpServer.listen(3000, () => {
 
 // when the server restarts, socket.io reconnects the users automatically
 io.on("connection", onConnected);
-const socketsConnected = new Set();
 
 function onConnected(socket) {
   console.log("Socket connected: ", socket.id);
-  socketsConnected.add(socket.id);
 
-  io.emit("clients-total", socketsConnected.size);
+  socket.on("joinRoom", ({ roomId }) => {
+    socket.join(roomId);
+    console.log(`Socket ${socket.id} joined room ${roomId}`);
+  });
+
+  socket.on("sendMessage", ({ roomId, sender, message }) => {
+    console.log(`Message from ${sender} in room ${roomId}: ${message}`);
+    socket.to(roomId).emit("receiveMessage", { sender, message });
+  });
 
   socket.on("disconnect", () => {
     console.log("Socket disconnected: ", socket.id);
-    socketsConnected.delete(socket.id);
-    io.emit("clients-total", socketsConnected.size);
   });
 }

@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { User, Token } = require("../../models");
 
 const createUser = async (req, res) => {
+  console.log(req.body);
   try {
     const user = {
       firstName: req.body.firstName,

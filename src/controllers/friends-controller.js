@@ -217,7 +217,6 @@ const getFriendsList = async (req, res) => {
 // SOIT USER DANS UNE RELATION EN FONCTION DE QUI A AJOUTE QUI
 
 const removeFriend = async (req, res) => {
-  console.log(req.body);
   try {
     const currentFriend = await Friend.findOne({
       where: {
@@ -237,7 +236,6 @@ const removeFriend = async (req, res) => {
       },
     });
 
-    console.log(currentFriend);
     if (currentFriend) {
       const removedFriend = await Friend.update(
         {

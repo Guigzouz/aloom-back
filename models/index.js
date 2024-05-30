@@ -17,6 +17,20 @@ const Token = require("./token")(sequelize, Sequelize.DataTypes);
 const Friend = require("./friend")(sequelize, Sequelize.DataTypes);
 const Group = require("./group")(sequelize, Sequelize.DataTypes);
 const UserGroup = require("./userGroup")(sequelize, Sequelize.DataTypes);
+const FileAttachment = require("./fileAttachment")(
+  sequelize,
+  Sequelize.DataTypes
+);
+
+const Reaction = require("./reaction")(sequelize, Sequelize.DataTypes);
+const Tag = require("./tag")(sequelize, Sequelize.DataTypes);
+const UserPost = require("./userPost")(sequelize, Sequelize.DataTypes);
+const UserPostReaction = require("./userPostReaction")(
+  sequelize,
+  Sequelize.DataTypes
+);
+console.log("heyey");
+const UserPostTag = require("./userPostTag")(sequelize, Sequelize.DataTypes);
 
 const models = {
   User,
@@ -24,6 +38,12 @@ const models = {
   Friend,
   Group,
   UserGroup,
+  FileAttachment,
+  Reaction,
+  Tag,
+  UserPost,
+  UserPostReaction,
+  UserPostTag,
 };
 
 Object.values(models).map((model) => model.associate?.(models));

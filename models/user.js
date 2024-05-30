@@ -5,9 +5,12 @@ module.exports = (sequelize, DataTypes) => {
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     email: DataTypes.STRING,
+    nickname: DataTypes.STRING,
     hashedPassword: DataTypes.STRING,
-    phoneNumber: DataTypes.INTEGER,
+    phoneNumber: DataTypes.BIGINT,
+    phoneNumberDialCode: DataTypes.INTEGER,
     countryKey: DataTypes.STRING,
+    fileAttachmentId: DataTypes.INTEGER,
   });
 
   User.associate = function (models) {
@@ -20,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       through: models.UserGroup,
       foreignKey: "userId",
       otherKey: "groupId",
+    });
+    User.belongsTo(models.FileAttachment, {
+      foreignKey: "fileAttachmentId",
+      as: "fileAttachment", // Alias for the association
     });
   };
 

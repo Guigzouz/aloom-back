@@ -52,7 +52,8 @@ jobs:
             docker pull ghcr.io/guigzouz/aloom-back-api:latest
 
             # Stop and remove any old containers (optional, based on your needs)
-            docker-compose -f /aloom-back/docker-compose.yaml down
+            cd /root/aloom-back
+            docker-compose down
 
             # Deploy using Docker Compose
-            docker-compose -f /aloom-back/docker-compose.yaml up -d
+            docker-compose up -d

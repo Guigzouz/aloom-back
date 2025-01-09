@@ -52,8 +52,10 @@ jobs:
             docker pull ghcr.io/guigzouz/aloom-back-api:latest
 
             # Stop and remove any old containers (optional, based on your needs)
-            docker ps -q --filter "name=aloom-back-db" | xargs -r docker stop | xargs -r docker rm
-            docker ps -q --filter "name=aloom-back-api" | xargs -r docker stop | xargs -r docker rm
+            docker ps -q --filter "name=aloom-back-db" | xargs -r docker stop
+            docker ps -a -q --filter "name=aloom-back-db" | xargs -r docker rm
+            docker ps -q --filter "name=aloom-back-api" | xargs -r docker stop
+            docker ps -a -q --filter "name=aloom-back-api" | xargs -r docker rm
 
             # Create a Docker network (if not already created)
             docker network create aloom-back-network || true

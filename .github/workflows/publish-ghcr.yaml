@@ -57,8 +57,8 @@ jobs:
             docker ps -q --filter "name=aloom-back-api" | xargs -r docker stop
             docker ps -a -q --filter "name=aloom-back-api" | xargs -r docker rm
 
-            # Create a Docker network (if not already created)
-            docker network create aloom-back-network || true
+            # Check if network exists, if not, create it
+            docker network ls --filter name=aloom-back-network -q || docker network create aloom-back-network
 
             # Run the updated DB container
             docker run -d --name aloom-back-db --network aloom-back-network -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} -p 5432:5432 ghcr.io/guigzouz/aloom-back-db:latest

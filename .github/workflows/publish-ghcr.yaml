@@ -36,17 +36,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Copy docker-compose.yml to the Droplet
-      - name: Copy docker-compose.yml to the Droplet
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USER }}
-          key: ${{ secrets.DROPLET_SSH_KEY }}
-          source: "docker-compose.yml"
-          target: "~/aloom-back/"
-
-      # Log in to the Droplet and deploy
+      # Log in to the Droplet and deploy using Docker run
       - name: Deploy to Droplet
         uses: appleboy/ssh-action@v0.1.9
         with:
@@ -54,16 +44,17 @@ jobs:
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
-            cd ~/aloom-back
-
             # Log in to GHCR on the Droplet
             echo ${{ secrets.GH_PAT }} | docker login ghcr.io -u guigzougz --password-stdin
 
             # Pull the latest images
-            docker compose pull
+            docker pull ghcr.io/guigzouz/aloom-back-db:latest
+            docker pull ghcr.io/guigzouz/aloom-back-api:latest
 
-            # Stop and remove the old containers
-            docker compose down
+            # Stop and remove any old containers (optional, based on your needs)
+            docker ps -q --filter "name=aloom-back-db" | xargs -r docker stop | xargs -r docker rm
+            docker ps -q --filter "name=aloom-back-api" | xargs -r docker stop | xargs -r docker rm
 
-            # Start the updated containers
-            docker compose up -d
+            # Run the updated containers using docker run commands
+            docker run -d --name aloom-back-db -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} -p 5432:5432 ghcr.io/guigzouz/aloom-back-db:latest
+            docker run -d --name aloom-back-api --link aloom-back-db:db -p 3000:3000 ghcr.io/guigzouz/aloom-back-api:latest

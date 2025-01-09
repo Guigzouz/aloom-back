@@ -16,7 +16,7 @@ const sendFriendRequest = async (req, res) => {
       isBlocked: false,
     };
 
-    // Check for existing request or inactive friendship
+    // Check for exi sting request or inactive friendship
     const existingRequest = await Friend.findOne({
       where: {
         [Op.or]: [

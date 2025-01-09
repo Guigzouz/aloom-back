@@ -36,8 +36,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Log in to the Droplet and deploy using Docker run
-      - name: Deploy to Droplet
+      # Log in to the Droplet and deploy using Docker Compose
+      - name: Deploy to Droplet using Docker Compose
         uses: appleboy/ssh-action@v0.1.9
         with:
           host: ${{ secrets.DROPLET_IP }}
@@ -52,28 +52,7 @@ jobs:
             docker pull ghcr.io/guigzouz/aloom-back-api:latest
 
             # Stop and remove any old containers (optional, based on your needs)
-            docker ps -q --filter "name=aloom-back-db" | xargs -r docker stop
-            docker ps -a -q --filter "name=aloom-back-db" | xargs -r docker rm
-            docker ps -q --filter "name=aloom-back-api" | xargs -r docker stop
-            docker ps -a -q --filter "name=aloom-back-api" | xargs -r docker rm
+            docker-compose -f /aloom-back/docker-compose.yaml down
 
-            # Create a Docker network (if not already created)
-            docker network ls --filter name=aloom-back-network -q || docker network create aloom-back-network
-
-            # Run the updated DB container
-            docker run -d --name aloom-back-db --network aloom-back-network \
-              -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e POSTGRES_USER=${{ secrets.DB_USER }} \
-              -e POSTGRES_DB=${{ secrets.DB_NAME }} \
-              -p 5432:5432 ghcr.io/guigzouz/aloom-back-db:latest
-
-            # Run the updated API container (passing the environment variables from GitHub secrets)
-            docker run -d --name aloom-back-api --network aloom-back-network \
-              -e NODE_ENV=production \
-              -e DB_HOST=db \
-              -e DB_PORT=5432 \
-              -e DB_USER=${{ secrets.DB_USER }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e DB_NAME=${{ secrets.DB_NAME }} \
-              -e POSTGRES_APP_URI=${{ secrets.POSTGRES_APP_URI }} \
-              -p 3000:3000 ghcr.io/guigzouz/aloom-back-api:latest
+            # Deploy using Docker Compose
+            docker-compose -f /aloom-back/docker-compose.yaml up -d

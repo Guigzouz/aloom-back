@@ -1,4 +1,4 @@
-name: Docker Image CI for GHCR
+name: CI/CD for Aloom-Back
 
 on:
   push:
@@ -19,7 +19,6 @@ jobs:
       # Push the DB image
       - name: Tag and push the DB image
         run: |
-          # Tag the postgres base image as your custom db image
           docker pull postgres:latest
           docker tag postgres:latest ghcr.io/guigzouz/aloom-back-db:latest
           docker push ghcr.io/guigzouz/aloom-back-db:latest
@@ -29,3 +28,42 @@ jobs:
         run: |
           docker build . -f Dockerfile --tag ghcr.io/guigzouz/aloom-back-api:latest
           docker push ghcr.io/guigzouz/aloom-back-api:latest
+
+  deploy_to_droplet:
+    needs: build_and_publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Copy docker-compose.yml to the Droplet
+      - name: Copy docker-compose.yml to the Droplet
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "~/aloom-back/docker-compose.yml"
+
+      # Log in to the Droplet and deploy
+      - name: Deploy to Droplet
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            cd ~/aloom-back
+
+            # Log in to GHCR on the Droplet
+            echo ${{ secrets.GH_PAT }} | docker login ghcr.io -u guigzougz --password-stdin
+
+            # Pull the latest images
+            docker compose pull
+
+            # Stop and remove the old containers
+            docker compose down
+
+            # Start the updated containers
+            docker compose up -d

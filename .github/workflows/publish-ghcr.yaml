@@ -56,7 +56,7 @@ jobs:
           script: |
             cd ~/aloom-back
 
-            # Log in to GHCR on the Drople
+            # Log in to GHCR on the Droplet
             echo ${{ secrets.GH_PAT }} | docker login ghcr.io -u guigzougz --password-stdin
 
             # Pull the latest images

@@ -68,7 +68,7 @@ const sendFriendRequest = async (req, res) => {
     console.error(error); // Log the error for debugging purposes
     res
       .status(500)
-      .send({ message: "Internal server error", error: error.message });
+      .send({ message: "Internal serrver error", error: error.message });
   }
 };
 

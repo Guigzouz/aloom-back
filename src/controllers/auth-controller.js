@@ -10,7 +10,6 @@ const createUser = async (req, res) => {
       lastName: req.body.lastName,
       email: req.body.email,
       hashedPassword: await bcrypt.hash(req.body.password, 10),
-      phoneNumber: req.body.phoneNumber,
       countryKey: req.body.countryKey,
     };
 

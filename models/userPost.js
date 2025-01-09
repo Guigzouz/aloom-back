@@ -3,6 +3,10 @@
 module.exports = (sequelize, DataTypes) => {
   const UserPost = sequelize.define("UserPost", {
     content: DataTypes.TEXT,
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
   });
 
   UserPost.associate = function (models) {

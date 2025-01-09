@@ -44,7 +44,7 @@ jobs:
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
           source: "docker-compose.yml"
-          target: "~/aloom-back/docker-compose.yml"
+          target: "~/aloom-back/"
 
       # Log in to the Droplet and deploy
       - name: Deploy to Droplet

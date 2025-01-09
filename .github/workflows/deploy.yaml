@@ -25,10 +25,10 @@ jobs:
       - name: Build and push Docker images
         run: |
           # Build db image (if necessary, e.g., for custom configuration)
-          docker-compose build db
+          docker compose build db
 
           # Build api image
-          docker-compose build api
+          docker compose build api
 
           # Tag the images
           docker tag aloom-back_db:latest ghcr.io/${{ github.repository }}/db:latest
@@ -45,14 +45,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Copy docker-compose.yml to Droplet
+      - name: Copy docker compose.yml to Droplet
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
-          source: "docker-compose.yml"
-          target: "/path/to/your/project/docker-compose.yml"
+          source: "docker compose.yml"
+          target: "/path/to/your/project/docker compose.yml"
 
       - name: Copy .env file to Droplet
         uses: appleboy/scp-action@v0.1.4
@@ -71,10 +71,10 @@ jobs:
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
             # Pull the latest images from GitHub Packages
-            docker-compose pull
+            docker compose pull
 
             # Stop and remove the old containers (if any)
-            docker-compose down
+            docker compose down
 
             # Start the containers (db and api) in detached mode
-            docker-compose up -d
+            docker compose up -d

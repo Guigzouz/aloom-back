@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",
+    "start:background": "nohup node server.js &",
+    "stop:background": "pkill -f 'node server.js'",
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:rollback": "npx sequelize-cli db:migrate:undo:all"

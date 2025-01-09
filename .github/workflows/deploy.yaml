@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main # Trigger on push to main branch
+      - main # Trigger on push to the main branch
 
 jobs:
   build_and_push:
@@ -25,15 +25,15 @@ jobs:
       - name: Build and push Docker images
         run: |
           # Build db image (if necessary, e.g., for custom configuration)
-          docker compose build db
+          docker-compose build db
 
           # Build api image
-          docker compose build api
+          docker-compose build api
 
           # Tag the images
-            REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-            docker tag aloom-back-db:latest ghcr.io/$REPO_NAME/db:latest
-            docker tag aloom-back-api:latest ghcr.io/$REPO_NAME/api:latest
+          REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker tag aloom-back-db:latest ghcr.io/$REPO_NAME/db:latest
+          docker tag aloom-back-api:latest ghcr.io/$REPO_NAME/api:latest
 
           # Push both images
           docker push ghcr.io/${{ github.repository }}/db:latest
@@ -46,14 +46,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Copy docker compose.yml to Droplet
+      - name: Install Docker Compose
+        run: |
+          # Install Docker Compose on the GitHub runner
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version  # Verify the installation
+
+      - name: Copy docker-compose.yml to Droplet
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
-          source: "docker compose.yml"
-          target: "/path/to/your/project/docker compose.yml"
+          source: "docker-compose.yml"
+          target: "/path/to/your/project/docker-compose.yml"
 
       - name: Copy .env file to Droplet
         uses: appleboy/scp-action@v0.1.4
@@ -71,11 +78,15 @@ jobs:
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
+            # Ensure Docker Compose is installed on the Droplet (if not already)
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+
             # Pull the latest images from GitHub Packages
-            docker compose pull
+            docker-compose pull
 
             # Stop and remove the old containers (if any)
-            docker compose down
+            docker-compose down
 
             # Start the containers (db and api) in detached mode
-            docker compose up -d
+            docker-compose up -d

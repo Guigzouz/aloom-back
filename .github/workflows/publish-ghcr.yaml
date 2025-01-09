@@ -12,6 +12,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build and push the image
         run: |
-          docker login --username guigzougz --password${{secrets.GH_PAT}} ghcr.io
+          docker login --username guigzougz --password ${{secrets.GH_PAT}} ghcr.io
           docker build . --tag ghcr.io/guigzouz/aloom-back-api:latest
           docker push ghcr.io/guigzouz/aloom-back-api:latest

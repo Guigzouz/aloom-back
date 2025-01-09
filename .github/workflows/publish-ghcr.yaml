@@ -70,7 +70,7 @@ jobs:
             # Run the updated API container (passing the environment variables from GitHub secrets)
             docker run -d --name aloom-back-api --network aloom-back-network \
               -e NODE_ENV=production \
-              -e DB_HOST=aloom-back-db \
+              -e DB_HOST=db \
               -e DB_PORT=5432 \
               -e DB_USER=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \

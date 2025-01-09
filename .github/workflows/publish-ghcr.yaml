@@ -1,4 +1,4 @@
-name: CI/CD for Aloom-Back
+name: CI/CD for aloom-back
 
 on:
   push:

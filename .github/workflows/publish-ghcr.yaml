@@ -57,11 +57,23 @@ jobs:
             docker ps -q --filter "name=aloom-back-api" | xargs -r docker stop
             docker ps -a -q --filter "name=aloom-back-api" | xargs -r docker rm
 
-            # Check if network exists, if not, create it
+            # Create a Docker network (if not already created)
             docker network ls --filter name=aloom-back-network -q || docker network create aloom-back-network
 
             # Run the updated DB container
-            docker run -d --name aloom-back-db --network aloom-back-network -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} -p 5432:5432 ghcr.io/guigzouz/aloom-back-db:latest
+            docker run -d --name aloom-back-db --network aloom-back-network \
+              -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e POSTGRES_USER=${{ secrets.DB_USER }} \
+              -e POSTGRES_DB=${{ secrets.DB_NAME }} \
+              -p 5432:5432 ghcr.io/guigzouz/aloom-back-db:latest
 
-            # Run the updated API container (connected to the same network)
-            docker run -d --name aloom-back-api --network aloom-back-network -p 3000:3000 ghcr.io/guigzouz/aloom-back-api:latest
+            # Run the updated API container (passing the environment variables from GitHub secrets)
+            docker run -d --name aloom-back-api --network aloom-back-network \
+              -e NODE_ENV=production \
+              -e DB_HOST=aloom-back-db \
+              -e DB_PORT=5432 \
+              -e DB_USER=${{ secrets.DB_USER }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e DB_NAME=${{ secrets.DB_NAME }} \
+              -e POSTGRES_APP_URI=${{ secrets.POSTGRES_APP_URI }} \
+              -p 3000:3000 ghcr.io/guigzouz/aloom-back-api:latest

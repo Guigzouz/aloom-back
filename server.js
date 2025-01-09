@@ -16,8 +16,13 @@ const io = new Server(httpServer, {
 });
 
 app.use(express.json());
-app.use(cors());
-
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Adjust this based on where your frontend is running
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use("/", router);
 
 app.get("/", (req, res) => res.send("Hello World"));

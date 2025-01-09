@@ -31,9 +31,8 @@
 #           docker compose build api
 
 #           # Tag the images
-#             REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-#             docker tag aloom-back-db:latest ghcr.io/$REPO_NAME/db:latest
-#             docker tag aloom-back-api:latest ghcr.io/$REPO_NAME/api:latest
+#             docker tag aloom-back_db:latest ghcr.io/${{ github.repository | toLowerCase }}/db:latest
+#             docker tag aloom-back_api:latest ghcr.io/${{ github.repository | toLowerCase }}/api:latest
 
 #           # Push both images
 #           docker push ghcr.io/${{ github.repository }}/db:latest

@@ -10,8 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build and push the image
+
+      # Log in to GitHub Container Registry
+      - name: Log in to GitHub Container Registry
         run: |
-          docker login --username guigzougz --password ${{secrets.GH_PAT}} ghcr.io
-          docker build . --tag ghcr.io/guigzouz/aloom-back-api:latest
+          docker login --username guigzougz --password ${{ secrets.GH_PAT }} ghcr.io
+
+      # Push the DB image
+      - name: Tag and push the DB image
+        run: |
+          # Tag the postgres base image as your custom db image
+          docker pull postgres:latest
+          docker tag postgres:latest ghcr.io/guigzouz/aloom-back-db:latest
+          docker push ghcr.io/guigzouz/aloom-back-db:latest
+
+      # Build and push the API image
+      - name: Build and push the API image
+        run: |
+          docker build . -f Dockerfile --tag ghcr.io/guigzouz/aloom-back-api:latest
           docker push ghcr.io/guigzouz/aloom-back-api:latest

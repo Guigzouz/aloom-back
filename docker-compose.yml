@@ -15,7 +15,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/guigzouz/aloom-back-api:latest
     environment:
       - NODE_ENV=production
       - DB_HOST=db

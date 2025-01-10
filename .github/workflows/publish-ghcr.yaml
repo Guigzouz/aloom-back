@@ -53,7 +53,13 @@ jobs:
 
             # Stop and remove any old containers (optional, based on your needs)
             cd /root/aloom-back
-            docker-compose down
 
-            # Deploy using Docker Compose
+            # Fetch the latest code (in case any updates were made)
+            git pull origin main
+
+            # Rebuild and deploy using Docker Compose
+            docker-compose down
             docker-compose up -d
+
+            # Optional: Clean up unused images
+            docker image prune -f

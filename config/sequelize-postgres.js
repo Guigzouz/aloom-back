@@ -6,7 +6,7 @@ module.exports = {
   app: {
     dialect: "postgres",
     url: postgresAppUri,
-    // define: {
+    // deefine: {
     //   charset: "UTF8",
     // },
   },

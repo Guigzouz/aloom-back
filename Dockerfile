@@ -16,5 +16,9 @@ COPY . .
 # Expose the application port
 EXPOSE 3000
 
-# Start the application
-CMD ["npm","run","dev"]
+# Copy and set the entrypoint script
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+# Start the application with the entrypoint script
+ENTRYPOINT ["./entrypoint.sh"]

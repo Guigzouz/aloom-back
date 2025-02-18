@@ -1,5 +1,0 @@
-Connection to the database has been established.
-heyey
-Server started on port 3000
-Executing (default): SELECT 1+1 AS result
-Socket connected:  4TmKbGaiUl59lea-AAAB

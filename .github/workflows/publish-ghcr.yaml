@@ -16,20 +16,13 @@ jobs:
         run: |
           docker login --username guigzougz --password ${{ secrets.GH_PAT }} ghcr.io
 
-      # Push the DB image
-      - name: Tag and push the DB image
-        run: |
-          docker pull postgres:latest
-          docker tag postgres:latest ghcr.io/guigzouz/aloom-back-db:latest
-          docker push ghcr.io/guigzouz/aloom-back-db:latest
-
       # Build and push the API image
       - name: Build and push the API image
         run: |
           docker build . -f Dockerfile --tag ghcr.io/guigzouz/aloom-back-api:latest
           docker push ghcr.io/guigzouz/aloom-back-api:latest
 
-  deploy_to_droplet:
+  deploy_to_vps:
     needs: build_and_publish
     runs-on: ubuntu-latest
     steps:
@@ -40,9 +33,9 @@ jobs:
       - name: Deploy to Droplet using Docker Compose
         uses: appleboy/ssh-action@v0.1.9
         with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USER }}
-          key: ${{ secrets.DROPLET_SSH_KEY }}
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             # Log in to GHCR on the Droplet
             echo ${{ secrets.GH_PAT }} | docker login ghcr.io -u guigzougz --password-stdin

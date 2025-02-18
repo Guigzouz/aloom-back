@@ -1,35 +1,67 @@
-const { UserPost, User } = require("../../models");
+const {
+  UserPost,
+  User,
+  Tag,
+  UserPostTag,
+  Reaction,
+  UserPostReaction,
+  FileAttachment,
+} = require("../../models");
 const { Op, Sequelize, where } = require("sequelize");
 const jwt = require("jsonwebtoken");
 
 const getPosts = async (req, res) => {
   try {
-    const posts = await UserPost.findAndCountAll({
+    const posts = await UserPost.findAll({
       where: {
         createdAt: {
           [Op.gt]: Sequelize.literal("NOW() - INTERVAL '24 HOURS'"),
         },
       },
-      include: {
-        model: User,
-        as: "author", // Specify the alias here
-        attributes: ["firstName", "lastName", "countryKey", "nickname"],
+      attributes: {
+        include: [
+          // Count the number of replies
+          [
+            Sequelize.literal(`(
+              SELECT COUNT(*) 
+              FROM "UserPosts" AS replies 
+              WHERE replies."replyToUserPostId" = "UserPost"."id"
+            )`),
+            "userRepliesCount",
+          ],
+          // Count the number of reactions
+          [
+            Sequelize.literal(`(
+              SELECT COUNT(*) 
+              FROM "UserPostReactions" AS reactions 
+              WHERE reactions."postId" = "UserPost"."id"
+            )`),
+            "userReactionsCount",
+          ],
+        ],
       },
+      include: [
+        {
+          model: User,
+          as: "author",
+          attributes: ["firstName", "lastName", "countryKey", "nickname"],
+        },
+      ],
     });
 
-    if (posts.count > 0) {
-      res.status(201).json({
+    if (posts.length > 0) {
+      res.status(200).json({
         message: "post(s) retrieved",
-        posts: posts,
+        posts,
       });
       return;
     }
-    res.status(400).send("no posts found in the last 24h");
+    res.status(204).json({ message: "no posts retrieved" });
   } catch (error) {
-    console.error(error); // Log the error for debugging purposes
+    console.error(error);
     res
       .status(500)
-      .send({ message: "Internal server error", error: error.message });
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -63,24 +95,56 @@ const getUserPosts = async (req, res) => {
 const getPostDetails = async (req, res) => {
   try {
     const postDetails = await UserPost.findOne({
-      where: {
-        id: req.params.postId,
-      },
+      where: { id: req.params.postId },
+      include: [
+        {
+          model: UserPost,
+          as: "replies", // Matches hasMany alias
+          include: {
+            model: User,
+            as: "author",
+            attributes: ["firstName", "lastName", "countryKey", "nickname"],
+          },
+        },
+        {
+          model: User,
+          as: "author", // Matches belongsTo alias
+          attributes: ["firstName", "lastName", "countryKey", "nickname"],
+        },
+        {
+          model: FileAttachment,
+          as: "fileAttachment", // Matches belongsTo alias
+        },
+        {
+          model: Tag,
+          as: "Tags", // Matches belongsToMany alias
+          through: { attributes: [] }, // Avoid unnecessary data from the join table
+        },
+        {
+          model: Reaction,
+          as: "Reactions", // Matches belongsToMany alias
+          through: { attributes: [] },
+        },
+        {
+          model: UserPost,
+          as: "parentPost", // Matches belongsTo alias in the model
+          include: {
+            model: User,
+            as: "author",
+            attributes: ["firstName", "lastName", "countryKey", "nickname"],
+          },
+        },
+      ],
     });
 
-    if (postDetails) {
-      res.status(201).json({
-        message: "post informations found",
-        postDetails: postDetails,
-      });
+    if (!postDetails) {
+      return res.status(404).json({ message: "Post not found" });
     }
 
-    res.status(400).send("no post found at this id");
+    res.json({ postDetails });
   } catch (error) {
-    console.error(error); // Log the error for debugging purposes
-    res
-      .status(500)
-      .send({ message: "Internal server error", error: error.message });
+    console.error("Error fetching post details:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -104,6 +168,7 @@ const createPost = async (req, res) => {
     // Build the post content
     const postContent = {
       content: req.body.content,
+      replyToUserPostId: req.body.replyToUserPostId,
       fileAttachmentId: req.body.fileAttachmentId,
       authorId: userId, // Assign the post to the user
     };

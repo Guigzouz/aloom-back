@@ -2,17 +2,25 @@
 
 module.exports = (sequelize, DataTypes) => {
   const UserPost = sequelize.define("UserPost", {
-    content: DataTypes.TEXT,
+    replyToUserPostId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+      allowNull: false,
     },
   });
 
   UserPost.associate = function (models) {
     UserPost.belongsTo(models.User, {
       foreignKey: "authorId",
-      as: "author", // Changed 'userPost' to 'author' for clarity
+      as: "author",
     });
 
     UserPost.belongsTo(models.FileAttachment, {
@@ -30,6 +38,17 @@ module.exports = (sequelize, DataTypes) => {
       through: models.UserPostReaction,
       foreignKey: "postId",
       otherKey: "reactionId",
+    });
+
+    // **Self-referential association for replies**
+    UserPost.hasMany(models.UserPost, {
+      foreignKey: "replyToUserPostId",
+      as: "replies", // Alias for related posts
+    });
+
+    UserPost.belongsTo(models.UserPost, {
+      foreignKey: "replyToUserPostId",
+      as: "parentPost", // Optional: to get the parent post
     });
   };
 

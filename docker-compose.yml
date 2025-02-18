@@ -13,22 +13,21 @@ services:
       - "5432:5432"
 
   api:
-    image: ghcr.io/guigzouz/aloom-back-api:latest
+    build: .
+    depends_on:
+      - db
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - DB_HOST=db
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DB_NAME=aloom-db
-      - POSTGRES_APP_URI=postgresql://postgres:postgres@db:5432/aloom-db
-
-    depends_on:
-      - db
+      - DB_DATABASE=aloom-db
     ports:
       - "3000:3000"
+    command: ./entrypoint.sh
     volumes:
-      - ./data:/usr/src/app/data
+      - .:/usr/src/app
 
 volumes:
-  postgres-data:
+  postgres-data: # <-- Define the volume here

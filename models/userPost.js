@@ -23,11 +23,6 @@ module.exports = (sequelize, DataTypes) => {
       as: "author",
     });
 
-    UserPost.belongsTo(models.FileAttachment, {
-      foreignKey: "fileAttachmentId",
-      as: "fileAttachment",
-    });
-
     UserPost.belongsToMany(models.Tag, {
       through: models.UserPostTag,
       foreignKey: "postId",

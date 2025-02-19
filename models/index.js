@@ -25,6 +25,10 @@ const FileAttachment = require("./fileAttachment")(
 const Reaction = require("./reaction")(sequelize, Sequelize.DataTypes);
 const Tag = require("./tag")(sequelize, Sequelize.DataTypes);
 const UserPost = require("./userPost")(sequelize, Sequelize.DataTypes);
+const UserPostAttachment = require("./userPostAttachment")(
+  sequelize,
+  Sequelize.DataTypes
+);
 const UserPostReaction = require("./userPostReaction")(
   sequelize,
   Sequelize.DataTypes
@@ -42,6 +46,7 @@ const models = {
   Reaction,
   Tag,
   UserPost,
+  UserPostAttachment,
   UserPostReaction,
   UserPostTag,
 };

@@ -3,6 +3,7 @@ const cors = require("cors");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const router = require("./src/routes");
+const { metricsMiddleware, metricsHandler } = require("./src/metrics");
 
 const app = express();
 const httpServer = createServer(app);
@@ -18,20 +19,27 @@ const io = new Server(httpServer, {
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:8080", // Adjust this based on where your frontend is running
+    origin: "http://localhost:8080",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.use("/", router);
 
+// Apply Prometheus metrics middleware
+app.use(metricsMiddleware);
+
+// Define Routes
+app.use("/", router);
 app.get("/", (req, res) => res.send("Hello World"));
+
+// Expose /metrics endpoint for Prometheus
+app.get("/metrics", metricsHandler);
 
 httpServer.listen(3000, () => {
   console.log("Server started on port 3000");
 });
 
-// when the server restarts, socket.io reconnects the users automatically
+// Socket.io connection handling
 io.on("connection", onConnected);
 
 function onConnected(socket) {

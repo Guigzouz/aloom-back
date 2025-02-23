@@ -5,7 +5,6 @@ const {
   UserPostTag,
   Reaction,
   UserPostReaction,
-  FileAttachment,
 } = require("../../models");
 const { Op, Sequelize, where } = require("sequelize");
 const jwt = require("jsonwebtoken");
@@ -112,10 +111,6 @@ const getPostDetails = async (req, res) => {
           attributes: ["firstName", "lastName", "countryKey", "nickname"],
         },
         {
-          model: FileAttachment,
-          as: "fileAttachment", // Matches belongsTo alias
-        },
-        {
           model: Tag,
           as: "Tags", // Matches belongsToMany alias
           through: { attributes: [] }, // Avoid unnecessary data from the join table
@@ -169,7 +164,6 @@ const createPost = async (req, res) => {
     const postContent = {
       content: req.body.content,
       replyToUserPostId: req.body.replyToUserPostId,
-      fileAttachmentId: req.body.fileAttachmentId,
       authorId: userId, // Assign the post to the user
     };
 
@@ -228,7 +222,7 @@ const deletePost = async (req, res) => {
 const updatePost = async (req, res) => {
   try {
     const { postId } = req.params;
-    const { userId, content, fileAttachmentId } = req.body;
+    const { userId, content } = req.body;
 
     // Find the target post
     const targetPost = await UserPost.findOne({
@@ -249,9 +243,6 @@ const updatePost = async (req, res) => {
     const changes = {};
     if (content && content !== targetPost.content) {
       changes.content = content;
-    }
-    if (fileAttachmentId && fileAttachmentId !== targetPost.fileAttachmentId) {
-      changes.fileAttachmentId = fileAttachmentId;
     }
 
     // If no changes, return without updating

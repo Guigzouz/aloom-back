@@ -12,20 +12,10 @@ services:
     ports:
       - "5432:5432"
 
-  mongo:
-    image: mongo:7
-    container_name: mongo
-    restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
   api:
     build: .
     depends_on:
       - db
-      - mongo
     environment:
       - NODE_ENV=development
       - DB_HOST=db
@@ -42,7 +32,6 @@ services:
 
 volumes:
   postgres-data:
-  mongo-data:
   # prom_data:
   # grafana-data:
 

@@ -13,6 +13,11 @@ try {
 }
 
 const User = require("./user")(sequelize, Sequelize.DataTypes);
+const Videogame = require("./videogame")(sequelize, Sequelize.DataTypes);
+const UserVideogame = require("./userVideogame")(
+  sequelize,
+  Sequelize.DataTypes
+);
 const Token = require("./token")(sequelize, Sequelize.DataTypes);
 const Friend = require("./friend")(sequelize, Sequelize.DataTypes);
 const Group = require("./group")(sequelize, Sequelize.DataTypes);
@@ -45,6 +50,8 @@ const models = {
   FileAttachment,
   Reaction,
   Tag,
+  Videogame,
+  UserVideogame,
   UserPost,
   UserPostAttachment,
   UserPostReaction,

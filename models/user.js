@@ -50,14 +50,29 @@ module.exports = (sequelize, DataTypes) => {
       constraints: true,
       as: "tokens",
     });
+
     User.belongsToMany(models.Group, {
       through: models.UserGroup,
       foreignKey: "userId",
       otherKey: "groupId",
     });
+
     User.belongsTo(models.FileAttachment, {
       foreignKey: "fileAttachmentId",
-      as: "fileAttachment", // Alias for the association
+      as: "fileAttachment",
+    });
+
+    // ✅ Add this association to fix the error
+    User.belongsToMany(models.Videogame, {
+      through: models.UserVideogame,
+      foreignKey: "userId",
+      otherKey: "videogameId",
+      as: "videogames",
+    });
+
+    User.hasMany(models.UserVideogame, {
+      foreignKey: "userId",
+      as: "userVideogames",
     });
   };
 

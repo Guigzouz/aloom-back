@@ -37,7 +37,7 @@ const createUser = async (req, res) => {
 const login = async (req, res) => {
   console.log(req.body);
   const user = await User.findOne({ where: { email: req.body.email } });
-  if (user == null) {
+  if (!user) {
     return res.status(400).send("Cannot find user");
   }
 
@@ -53,28 +53,20 @@ const login = async (req, res) => {
           lastName: user.lastName,
         },
         process.env.JWT_SECRET,
-        {
-          expiresIn: "24h",
-        }
+        { expiresIn: "24h" }
       );
+
+      const hashedToken = await bcrypt.hash(token, 10); // Hash JWT before storing
 
       const existingUserSession = await Token.findOne({
         where: { userId: user.id },
       });
 
-      // if already a session for said user, updates the token to replicate in frontend
-      // ISSUING A JWT TO DATABASE IS NOT USED FOR SESSIONS BUT RATHER EMAIL VERIFICATIONS DO NOT USE TO CHECK AUTH
       if (existingUserSession) {
-        existingUserSession.authToken = token;
+        existingUserSession.authToken = hashedToken;
         await existingUserSession.save();
       } else {
-        const userSession = {
-          userId: user.id,
-          authToken: token,
-        };
-
-        await Token.create(userSession);
-        res.status(200).send({ jwt: token });
+        await Token.create({ userId: user.id, authToken: hashedToken });
       }
 
       res.status(200).send({ jwt: token });
@@ -82,7 +74,7 @@ const login = async (req, res) => {
       res.status(203).send("Not Allowed");
     }
   } catch (error) {
-    console.error(error); // Log the error for debugging purposes
+    console.error(error);
     res
       .status(500)
       .send({ message: "Internal server error", error: error.message });

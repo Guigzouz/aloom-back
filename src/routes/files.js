@@ -1,12 +1,11 @@
-const express = require("express");
-const {
-  uploadFile,
-  getFile,
-  upload,
-} = require("../controllers/files-controller");
-const router = express.Router();
+// routes/files.js
+"use strict";
 
-router.post("/upload", upload.single("file"), uploadFile);
-router.get("/:filename", getFile);
+const express = require("express");
+const router = express.Router();
+const upload = require("../helpers/multer");
+const { uploadImage } = require("../controllers/files-controller");
+
+router.post("/upload", upload.single("image"), uploadImage);
 
 module.exports = router;

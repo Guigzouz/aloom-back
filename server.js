@@ -10,7 +10,7 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://159.89.30.66",
+    origin: true,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -19,7 +19,7 @@ const io = new Server(httpServer, {
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://159.89.30.66",
+    origin: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -29,7 +29,7 @@ app.use(
 app.use(metricsMiddleware);
 
 // Define Routes
-app.use("/api", router);
+app.use("/", router);
 app.get("/", (req, res) => res.send("Hello World"));
 
 // Expose /metrics endpoint for Prometheus

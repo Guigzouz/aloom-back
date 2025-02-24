@@ -29,7 +29,7 @@ app.use(
 app.use(metricsMiddleware);
 
 // Define Routes
-app.use("/", router);
+app.use("/api", router);
 app.get("/", (req, res) => res.send("Hello World"));
 
 // Expose /metrics endpoint for Prometheus
